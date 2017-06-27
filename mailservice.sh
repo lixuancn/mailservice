@@ -20,19 +20,6 @@ build_linux(){
     GOOS=linux GOARCH=amd64 go build -o ./mailservice-linux
 }
 
-gitpush(){
-        echo $"Git add + git commit + git push..."
-        git add .
-        git commit -m "shell auto push"
-        git pull
-        git push
-}
-
-gitpull(){
-        echo $"Git pull..."
-        git pull
-}
-
 case "$1" in
    start)
         start
@@ -53,10 +40,6 @@ case "$1" in
         build_linux
         exit 1
         ;;
-   gitpush)
-        gitpush
-        exit 1
-        ;;
    publish)
         build_linux
         git add mailservice-linux
@@ -65,13 +48,8 @@ case "$1" in
         git push
         exit 1
         ;;
-   pull)
-        gitpull
-        run
-        exit 1
-        ;;
    *)
-        echo $"Usage: $0 {start|stop|restart|build-linux|git push|publish|pull}"
+        echo $"Usage: $0 {start|run|stop|restart|build-linux|publish}"
         exit 1
         ;;
 esac
