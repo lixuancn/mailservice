@@ -1,0 +1,10 @@
+# 邮件发送服务
+
+### 功能
+能发邮件、抄送、HTML内容、附件等
+
+### 起因
+项目需要发送邮件给公司人员
+
+### 参考
+- github.com/open-falcon/mail-provider

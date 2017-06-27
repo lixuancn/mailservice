@@ -1,0 +1,16 @@
+{
+  "debug": true,
+  "http": {
+    "listen": "0.0.0.0:4000",
+    "token": ""
+  },
+  "smtp": {
+    "addr": "10.16.13.116:25",
+    "username": "",
+    "password": "",
+    "from": {
+      "name": "招聘管理系统",
+      "adress": "zhaopin@alarm.360.cn"
+    }
+  }
+}
