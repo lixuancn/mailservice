@@ -110,8 +110,6 @@ func Start(){
 	}
 	s := &http.Server{
 		Addr: port,
-		//是HTTP请求头的最大允许值 1M
-		MaxHeaderBytes: 1 << 30,
 	}
 	log.Println("HTTP服务已启动,监听" + port + "端口")
 	log.Fatalln(s.ListenAndServe())
