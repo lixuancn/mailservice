@@ -1,5 +1,9 @@
 package main
 
+/**
+ * 这个页面基本是github.com/open-falcon/mail-provider的东西没变。
+ */
+
 import (
 	"runtime"
 	"log"
@@ -11,6 +15,7 @@ import (
 )
 
 func init(){
+	//Go1.5以后这句就可以不要了,默认P数量就是CPU数量了,好像是1.5=。=
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	//接收命令行参数
