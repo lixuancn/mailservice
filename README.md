@@ -23,19 +23,21 @@
 
 - Method: POST
 
-- 发件箱中文名: 必填, fromname
+- 发件箱中文名: 必填, fromname string 
 
-- 发件箱地址: 必填, fromaddress
+- 发件箱地址: 必填, fromaddress string
 
-- 收件人: 必填, tos, 多个用逗号分隔
+- 收件人: 必填, tos string, 多个用逗号分隔
 
-- 抄送人: 选填, ccs, 多个用逗号分隔
+- 抄送人: 选填, ccs string, 多个用逗号分隔
 
-- 主题: 必填, subject
+- 主题: 必填, subject string
 
-- 内容: 必填, content, 可用HTML代码
+- 内容: 必填, content string, 可用HTML代码
 
 - 附件: 选填, attachment, 可单文件可数组
+
+- 编码: 选填, body_content_type string, 默认是text/plain, 可选是text/html等
 
 ### 实例
 ##### FORM表单

@@ -61,6 +61,10 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	if err != nil{
 		return
 	}
+	bodyContentType, err := GetPostValue(w, r, "body_content_type", false)
+	if err != nil{
+		bodyContentType = "text/plain"
+	}
 	//获取附件
 	fileList := r.MultipartForm.File["attachment"]
 	attachmentList := make(map[string]*email.Attachment)
@@ -99,6 +103,7 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	m.Cc = ccList
 	m.Subject = subject
 	m.Body = content
+	m.BodyContentType = bodyContentType
 	m.Attachments = attachmentList
 	err = m.Send()
 	if err != nil {
