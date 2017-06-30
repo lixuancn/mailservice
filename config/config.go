@@ -1,64 +1,39 @@
 package config
 
-import (
-	"github.com/go-errors/errors"
-	"io/ioutil"
-	"strings"
-	"sync"
-	"encoding/json"
-	"os"
-	"net/mail"
-)
-
-const VERSION = "1.0.0"
+const GLOBAL_VERSION = "1.0.0"
+const HTTP_LISTEN = "0.0.0.0:4000"
+const HTTP_TOKEN = ""
+const SMTP_ADDR = "10.16.13.116:25"
+const SMTP_USERNAME = ""
+const SMTP_PASSWORD = ""
 
 type GlobalConfig struct {
-	Debug bool `json:"debug"`
-	Http *HttpConfig `json:"http"`
-	Smtp *SmtpConfig `json:"smtp"`
+	Http HttpConfig
+	Smtp SmtpConfig
 }
 
 type HttpConfig struct {
-	Listen string `json:"listen"`
-	Token string `json:"token"`
+	Listen string
+	Token string
 }
 
 type SmtpConfig struct {
-	Addr string `json:"addr"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	From mail.Address `json:"from"`
+	Addr string
+	Username string
+	Password string
 }
 
-var globalConfig *GlobalConfig
-var configLock = new(sync.RWMutex)
+var globalConfig GlobalConfig
 
-func Parse(configFile string)error{
-	println("aaa")
-	configLock.Lock()
-	defer configLock.Unlock()
-	if configFile == "" {
-		return errors.New("请传入配置文件参数-c")
+func Get()GlobalConfig{
+	globalConfig.Http = HttpConfig{
+		Listen: HTTP_LISTEN,
+		Token: HTTP_TOKEN,
 	}
-	_, err := os.Stat(configFile)
-	if err == nil && os.IsExist(err){
-		return errors.New("配置文件'" + configFile + "'不存在")
+	globalConfig.Smtp = SmtpConfig{
+		Addr: SMTP_ADDR,
+		Username: SMTP_USERNAME,
+		Password: SMTP_PASSWORD,
 	}
-	configContentByte, err := ioutil.ReadFile(configFile)
-	if err != nil{
-		return errors.New("读取配置文件'" + configFile + "'错误: " + err.Error())
-	}
-	configContent := strings.TrimSpace(string(configContentByte))
-
-	err = json.Unmarshal([]byte(configContent), &globalConfig)
-	if err != nil{
-		return errors.New("配置文件'" + configFile + "'逆向Json时错误: " + err.Error())
-	}
-	return nil
-}
-
-func GetConfig()*GlobalConfig{
-	configLock.RLock()
-	defer configLock.RUnlock()
 	return globalConfig
 }

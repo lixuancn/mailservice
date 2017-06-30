@@ -9,6 +9,8 @@
 ### 参考
 - github.com/open-falcon/mail-provider
 
+- github.com/scorredoira/email 这本来是个发邮件的包, 我想自己造个轮子, 就参考了它, 然后抛弃了它。
+
 ### 依赖
 - Linux下的sendmail
 
@@ -20,6 +22,10 @@
 - Protocol: HTTP
 
 - Method: POST
+
+- 发件箱中文名: 必填, fromname
+
+- 发件箱地址: 必填, fromaddress
 
 - 收件人: 必填, tos, 多个用逗号分隔
 
@@ -35,6 +41,8 @@
 ##### FORM表单
 ```html
 <form method="post" action="http://****:4000/sender/mail" enctype="multipart/form-data">
+    <input type="text" name="fromname" value="**邮件系统"><br>
+    <input type="text" name="fromaddress" value="example@example.com"><br>
     <input type="text" name="tos" value="***@qq.com"><br>
     <input type="text" name="ccs" value="***@163.com"><br>
     <input type="text" name="subject" value="搭建邮件服务器-测试附件发送"><br>
