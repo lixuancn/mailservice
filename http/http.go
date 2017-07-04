@@ -5,6 +5,7 @@ import (
 	"mailservice/config"
 	"github.com/go-errors/errors"
 	"log"
+	"encoding/json"
 )
 
 func init(){
@@ -35,8 +36,28 @@ func GetPostValue(w http.ResponseWriter, r *http.Request, name string, isMust bo
 	}
 	if isMust && len(value) <= 0{
 		msg := name + "是必填参数"
-		http.Error(w, msg, http.StatusBadRequest)
+		Output(w, nil, http.StatusBadRequest, msg)
 		return value, errors.New(msg)
 	}
 	return value, nil
+}
+
+type Result struct{
+	Data interface{}
+	ErrorCode int
+	ErrorMsg string
+}
+
+func ResultJson(data interface{}, errCode int, errMsg string)([]byte, error){
+	result := Result{Data:data, ErrorCode:errCode, ErrorMsg:errMsg}
+	return json.Marshal(result)
+}
+
+func Output(w http.ResponseWriter, data interface{}, errCode int, errMsg string)error{
+	j, err := ResultJson(data, errCode, errMsg)
+	if err != nil{
+		return err
+	}
+	w.Write(j)
+	return nil
 }

@@ -7,12 +7,21 @@ import (
 	"mailservice/email"
 	"mailservice/config"
 	"net/mail"
+	"fmt"
 )
 
 func HttpMail(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
+	fmt.Println(r.MultipartForm.File)
+	//fmt.Println(r.MultipartForm.File["attachment"])
+	//for _, v := range r.MultipartForm.File["attachment"]{
+	//	fmt.Println(v.Filename)
+	//}
+	return
+
+
 	if r.MultipartForm == nil {
-		http.Error(w, "获取POST数据失败", http.StatusBadRequest)
+		Output(w, nil, http.StatusBadRequest, "获取POST数据失败")
 		return
 	}
 	token, err := GetPostValue(w, r, "token", false)
@@ -21,7 +30,7 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	}
 	globalConfig := config.Get()
 	if globalConfig.Http.Token != token{
-		http.Error(w, "Token验证失败", http.StatusForbidden)
+		Output(w, nil, http.StatusForbidden, "Token验证失败")
 		return
 	}
 	fromAddress, err := GetPostValue(w, r, "fromaddress", true)
@@ -40,7 +49,7 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	tos = strings.Replace(tos, ",", ";", -1)
 	toList := strings.Split(tos, ";")
 	if len(toList) <= 0{
-		http.Error(w, "无效的收件人", http.StatusBadRequest)
+		Output(w, nil, http.StatusBadRequest, "无效的收件人")
 		return
 	}
 	ccs, _ := GetPostValue(w, r, "ccs", false)
@@ -49,7 +58,7 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	if len(ccs) > 0{
 		ccList = strings.Split(ccs, ";")
 		if len(ccList) <= 0{
-			http.Error(w, "无效的抄送人", http.StatusBadRequest)
+			Output(w, nil, http.StatusBadRequest, "无效的抄送人")
 			return
 		}
 	}
@@ -67,31 +76,29 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	}
 	//获取附件
 	fileList := r.MultipartForm.File["attachment"]
-	attachmentList := make(map[string]*email.Attachment)
+	fmt.Println(r.MultipartForm.File)
+	return
+	attachmentList := email.NewAttachmentList()
 	if len(fileList) > 0{
 		for _, file := range fileList{
 			if len(file.Filename) <= 0{
-				http.Error(w, "附件"+file.Filename+"没有名字", http.StatusBadRequest)
+				Output(w, nil, http.StatusBadRequest, "附件"+file.Filename+"没有名字")
 				return
 			}
 			f, err := file.Open()
 			if err != nil{
-				http.Error(w, "打开附件"+file.Filename+"失败, err: " + err.Error(), http.StatusBadRequest)
+				Output(w, nil, http.StatusBadRequest, "打开附件"+file.Filename+"失败, err: " + err.Error())
 				return
 			}
 			fileContent, err := ioutil.ReadAll(f)
 			if err != nil{
-				http.Error(w, "读取附件"+file.Filename+"失败, err: " + err.Error(), http.StatusBadRequest)
+				Output(w, nil, http.StatusBadRequest, "读取附件"+file.Filename+"失败, err: " + err.Error())
 				return
 			}
-			attachment := email.Attachment{
-				Filename: file.Filename,
-				Data: fileContent,
-				Inline: false,
-			}
-			attachmentList[file.Filename] = &attachment
+			attachment := email.NewAttachment(file.Filename, fileContent, false)
+			attachmentList[file.Filename] = attachment
 			if err != nil{
-				http.Error(w, "发送附件"+file.Filename+"失败, err: " + err.Error(), http.StatusBadRequest)
+				Output(w, nil, http.StatusBadRequest, "发送附件"+file.Filename+"失败, err: " + err.Error())
 				return
 			}
 		}
@@ -107,10 +114,10 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 	m.Attachments = attachmentList
 	err = m.Send()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		Output(w, nil, http.StatusInternalServerError, err.Error())
 		return
 	}else{
-		http.Error(w, "success", http.StatusOK)
+		Output(w, "success", http.StatusOK, "")
 		return
 	}
 }
