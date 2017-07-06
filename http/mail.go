@@ -7,19 +7,16 @@ import (
 	"mailservice/email"
 	"mailservice/config"
 	"net/mail"
-	"fmt"
 )
 
 func HttpMail(w http.ResponseWriter, r *http.Request) {
+	if strings.ToLower(r.Method) == "post"{
+		post(w, r)
+	}
+}
+
+func post(w http.ResponseWriter, r *http.Request){
 	r.ParseMultipartForm(32 << 20)
-	fmt.Println(r.MultipartForm.File)
-	//fmt.Println(r.MultipartForm.File["attachment"])
-	//for _, v := range r.MultipartForm.File["attachment"]{
-	//	fmt.Println(v.Filename)
-	//}
-	return
-
-
 	if r.MultipartForm == nil {
 		Output(w, nil, http.StatusBadRequest, "获取POST数据失败")
 		return
@@ -75,9 +72,7 @@ func HttpMail(w http.ResponseWriter, r *http.Request) {
 		bodyContentType = "text/plain"
 	}
 	//获取附件
-	fileList := r.MultipartForm.File["attachment"]
-	fmt.Println(r.MultipartForm.File)
-	return
+	fileList := GetFileList(r, "attachment")
 	attachmentList := email.NewAttachmentList()
 	if len(fileList) > 0{
 		for _, file := range fileList{

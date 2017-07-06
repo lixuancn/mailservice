@@ -42,12 +42,13 @@
 ### 实例
 ##### FORM表单
 ```html
-<form method="post" action="http://****:4000/sender/mail" enctype="multipart/form-data">
+<form method="post" action="http://****:4000/mail" enctype="multipart/form-data">
     <input type="text" name="fromname" value="**邮件系统"><br>
     <input type="text" name="fromaddress" value="example@example.com"><br>
-    <input type="text" name="tos" value="***@qq.com"><br>
-    <input type="text" name="ccs" value="***@163.com"><br>
+    <input type="text" name="tos" value="***@qq.com,***@qq.com"><br>
+    <input type="text" name="ccs" value="***@163.com,***@163.com"><br>
     <input type="text" name="subject" value="搭建邮件服务器-测试附件发送"><br>
+    <input type="text" name="body_content_type" value="text/html"><br>
     <input type="file" name="attachment"><br>
     <input type="file" name="attachment"><br>
     <textarea name="content">
@@ -57,4 +58,46 @@
     </textarea><br>
     <input type="submit">
 </form>
+```
+
+##### PHP-Curl
+```php
+$toList = 'example1@example.com,example2@example.com';
+$ccList = 'example1@example.com,example2@example.com';
+$subject = '测试邮件';
+$content = <<<MAIL
+您好：
+测试
+详情点击<a href="http://www.baidu.com">《PHP是最好的语言》</a><br>
+系统发送，请勿回复。<br>
+MAIL;
+$filenameList = array(
+    '/tmp/1.png',
+    '/tmp/2.png',
+);
+$bodyContentType = 'text/html';
+
+$url = 'http://127.0.0.1:4000/mail';
+$method = "POST";
+$data['fromname'] = '系统邮件';
+$data['fromaddress'] = 'example@example.com';
+$data['tos'] = $toList;
+$data['ccs'] = $ccList;
+$data['subject'] = $subject;
+$data['content'] = $content;
+foreach(array_values($filenameList) as $key=>$filename){
+    $data['attachment['.$key.']'] = new \CURLFile(realpath($filename));
+}
+$data['body_content_type'] = $bodyContentType;
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_HEADER, 0);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+$r = curl_exec($ch);
+curl_close($ch);
+echo $r;
 ```

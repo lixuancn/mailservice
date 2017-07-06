@@ -6,13 +6,15 @@ import (
 	"github.com/go-errors/errors"
 	"log"
 	"encoding/json"
+	"mime/multipart"
+	"strconv"
 )
 
 func init(){
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))
 	})
-	http.HandleFunc("/sender/mail", HttpMail)
+	http.HandleFunc("/mail", HttpMail)
 }
 
 func Start(){
@@ -60,4 +62,27 @@ func Output(w http.ResponseWriter, data interface{}, errCode int, errMsg string)
 	}
 	w.Write(j)
 	return nil
+}
+
+/**
+ * 获取文件列表
+ */
+func GetFileList(r *http.Request, name string)[]*multipart.FileHeader{
+	//如果该名字下面是个数组的话, 比如form表单提交的
+	fileList, ok := r.MultipartForm.File[name];
+	if ok{
+		return fileList
+	}
+	//如果该名字找不到, 数组是name[0], name[1]之类的
+	fileList = make([]*multipart.FileHeader, 0)
+	count := 0
+	for k, v := range r.MultipartForm.File{
+		key := name + "[" + strconv.Itoa(count) + "]"
+		if k != key{
+			continue;
+		}
+		fileList = append(fileList, v[0])
+		count++
+	}
+	return fileList
 }
