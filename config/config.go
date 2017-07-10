@@ -3,7 +3,7 @@ package config
 const GLOBAL_VERSION = "1.0.0"
 const HTTP_LISTEN = "0.0.0.0:4000"
 const HTTP_TOKEN = ""
-const SMTP_ADDR = "10.16.13.116:25"
+const SMTP_ADDR = "127.0.0.1:25"
 const SMTP_USERNAME = ""
 const SMTP_PASSWORD = ""
 
