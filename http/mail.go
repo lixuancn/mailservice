@@ -7,12 +7,13 @@ import (
 	"mailservice/email"
 	"mailservice/config"
 	"net/mail"
-	"fmt"
 )
 
 func HttpMail(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(r.Method) == "post"{
 		post(w, r)
+	}else{
+		Output(w, nil, http.StatusBadRequest, "仅支持POST")
 	}
 }
 
@@ -24,6 +25,7 @@ func post(w http.ResponseWriter, r *http.Request){
 	}
 	token, err := GetPostValue(w, r, "token", false)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "TOKEN不存在")
 		return
 	}
 	globalConfig := config.Get()
@@ -33,15 +35,18 @@ func post(w http.ResponseWriter, r *http.Request){
 	}
 	fromAddress, err := GetPostValue(w, r, "fromaddress", true)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "发件人邮箱不存在")
 		return
 	}
 	fromName, err := GetPostValue(w, r, "fromname", true)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "发件人名称不存在")
 		return
 	}
 	from := mail.Address{Name:fromName, Address:fromAddress}
 	tos, err := GetPostValue(w, r, "tos", true)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "收件人邮箱不存在")
 		return
 	}
 	tos = strings.Replace(tos, ",", ";", -1)
@@ -62,10 +67,12 @@ func post(w http.ResponseWriter, r *http.Request){
 	}
 	subject, err := GetPostValue(w, r, "subject", true)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "主题不存在")
 		return
 	}
 	content, err := GetPostValue(w, r, "content", true)
 	if err != nil{
+		Output(w, nil, http.StatusBadRequest, "正文不存在")
 		return
 	}
 	bodyContentType, err := GetPostValue(w, r, "body_content_type", false)
@@ -109,8 +116,6 @@ func post(w http.ResponseWriter, r *http.Request){
 	m.BodyContentType = bodyContentType
 	m.Attachments = attachmentList
 	err = m.Send()
-	fmt.Println(err)
-	fmt.Println(m)
 	if err != nil {
 		Output(w, nil, http.StatusInternalServerError, err.Error())
 		return
