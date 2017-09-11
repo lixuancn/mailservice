@@ -7,6 +7,7 @@ import (
 	"mailservice/email"
 	"mailservice/config"
 	"net/mail"
+	"fmt"
 )
 
 func HttpMail(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +109,8 @@ func post(w http.ResponseWriter, r *http.Request){
 	m.BodyContentType = bodyContentType
 	m.Attachments = attachmentList
 	err = m.Send()
+	fmt.Println(err)
+	fmt.Println(m)
 	if err != nil {
 		Output(w, nil, http.StatusInternalServerError, err.Error())
 		return
